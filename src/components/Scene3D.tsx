@@ -70,58 +70,134 @@ function NeonGrid() {
   );
 }
 
-function FloatingShapes() {
+function NeuralBrain() {
   const groupRef = useRef<THREE.Group>(null);
+  const nodesRef = useRef<THREE.InstancedMesh>(null);
+  const signalsRef = useRef<THREE.InstancedMesh>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const colorArr = useMemo(() => new Float32Array(100 * 3), []);
 
-  const shapes = useMemo(() => {
-    return Array.from({ length: 15 }, (_, i) => ({
-      position: [
-        (Math.random() - 0.5) * 12,
-        Math.random() * 4 + 0.5,
-        (Math.random() - 0.5) * 12 - 2,
-      ] as [number, number, number],
-      rotation: [
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-      ] as [number, number, number],
-      speed: 0.2 + Math.random() * 0.3,
-      scale: 0.3 + Math.random() * 0.5,
-      type: i % 5,
-    }));
+  const { nodes, connections } = useMemo(() => {
+    const nodePositions: THREE.Vector3[] = [];
+    const count = 70;
+
+    for (let i = 0; i < count; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const isLeft = i < count / 2;
+      const lobeOffset = isLeft ? -0.6 : 0.6;
+
+      let r = 1.8 + Math.random() * 0.6;
+      const x = Math.sin(phi) * Math.cos(theta) * r * 1.1 + lobeOffset;
+      const y = Math.sin(phi) * Math.sin(theta) * r * 0.85 + 0.3;
+      const z = Math.cos(phi) * r * 0.9;
+
+      nodePositions.push(new THREE.Vector3(x, y, z));
+    }
+
+    const conns: { from: number; to: number; dist: number }[] = [];
+    for (let i = 0; i < nodePositions.length; i++) {
+      for (let j = i + 1; j < nodePositions.length; j++) {
+        const dist = nodePositions[i].distanceTo(nodePositions[j]);
+        if (dist < 1.8) {
+          conns.push({ from: i, to: j, dist });
+        }
+      }
+    }
+
+    return { nodes: nodePositions, connections: conns };
   }, []);
+
+  const signals = useMemo(() => {
+    const sigCount = Math.min(connections.length, 25);
+    return Array.from({ length: sigCount }, (_, i) => ({
+      connIdx: i % connections.length,
+      progress: Math.random(),
+      speed: 0.3 + Math.random() * 0.5,
+      delay: Math.random() * 4,
+    }));
+  }, [connections]);
+
+  const lineObjects = useMemo(() => {
+    const mat = new THREE.LineBasicMaterial({ color: "#00e676", transparent: true, opacity: 0.15 });
+    return connections.map((conn) => {
+      const geo = new THREE.BufferGeometry().setFromPoints([nodes[conn.from], nodes[conn.to]]);
+      return new THREE.Line(geo, mat);
+    });
+  }, [connections, nodes]);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
+
     if (groupRef.current) {
-      groupRef.current.children.forEach((child, i) => {
-        const shape = shapes[i];
-        child.rotation.x = shape.rotation[0] + t * shape.speed * 0.5;
-        child.rotation.y = shape.rotation[1] + t * shape.speed;
-        child.position.y = shape.position[1] + Math.sin(t * shape.speed + i) * 0.3;
-      });
+      groupRef.current.rotation.y = t * 0.08;
+      groupRef.current.position.y = 1.5 + Math.sin(t * 0.4) * 0.15;
+    }
+
+    if (nodesRef.current) {
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        const pulse = Math.sin(t * 2 + i * 0.5) * 0.5 + 0.5;
+        const scale = 0.04 + pulse * 0.03;
+
+        dummy.position.copy(node);
+        dummy.scale.setScalar(scale);
+        dummy.updateMatrix();
+        nodesRef.current.setMatrixAt(i, dummy.matrix);
+
+        const brightness = 0.5 + pulse * 0.5;
+        colorArr[i * 3] = 0;
+        colorArr[i * 3 + 1] = brightness;
+        colorArr[i * 3 + 2] = brightness * 0.46;
+      }
+      nodesRef.current.instanceMatrix.needsUpdate = true;
+      const colorAttr = nodesRef.current.geometry.getAttribute("color");
+      if (colorAttr) {
+        (colorAttr as THREE.BufferAttribute).set(colorArr);
+        colorAttr.needsUpdate = true;
+      }
+    }
+
+    if (signalsRef.current) {
+      for (let i = 0; i < signals.length; i++) {
+        const sig = signals[i];
+        const elapsed = Math.max(0, t - sig.delay);
+        const cycleTime = 1 / sig.speed;
+        const progress = (elapsed % cycleTime) / cycleTime;
+
+        const conn = connections[sig.connIdx];
+        if (conn) {
+          const from = nodes[conn.from];
+          const to = nodes[conn.to];
+          const pos = new THREE.Vector3().lerpVectors(from, to, progress);
+
+          dummy.position.copy(pos);
+          dummy.scale.setScalar(0.06);
+          dummy.updateMatrix();
+          signalsRef.current.setMatrixAt(i, dummy.matrix);
+        }
+      }
+      signalsRef.current.instanceMatrix.needsUpdate = true;
     }
   });
 
   return (
-    <group ref={groupRef}>
-      {shapes.map((shape, i) => (
-        <mesh key={i} position={shape.position} scale={shape.scale}>
-          {shape.type === 0 && <boxGeometry args={[1, 1, 1]} />}
-          {shape.type === 1 && <octahedronGeometry args={[1, 0]} />}
-          {shape.type === 2 && <tetrahedronGeometry args={[1, 0]} />}
-          {shape.type === 3 && <icosahedronGeometry args={[1, 0]} />}
-          {shape.type === 4 && <dodecahedronGeometry args={[1, 0]} />}
-          <meshStandardMaterial
-            color="#00e676"
-            emissive="#00e676"
-            emissiveIntensity={0.6}
-            wireframe
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
+    <group ref={groupRef} position={[0, 1.5, 0]}>
+      {lineObjects.map((line, i) => (
+        <primitive key={i} object={line} />
       ))}
+
+      <instancedMesh ref={nodesRef} args={[undefined, undefined, nodes.length]}>
+        <sphereGeometry args={[1, 8, 8]}>
+          <bufferAttribute attach="attributes-color" args={[colorArr, 3]} />
+        </sphereGeometry>
+        <meshBasicMaterial toneMapped={false} vertexColors transparent opacity={0.9} />
+      </instancedMesh>
+
+      <instancedMesh ref={signalsRef} args={[undefined, undefined, signals.length]}>
+        <sphereGeometry args={[1, 6, 6]} />
+        <meshBasicMaterial color="#69f0ae" toneMapped={false} transparent opacity={0.9} />
+      </instancedMesh>
     </group>
   );
 }
@@ -190,7 +266,7 @@ export default function Scene3D() {
         <pointLight position={[-5, 2, 0]} intensity={0.5} color="#69f0ae" />
         <pointLight position={[5, 2, 0]} intensity={0.5} color="#00bfa5" />
         <NeonGrid />
-        <FloatingShapes />
+        <NeuralBrain />
         <ScanLines />
         <NeonParticles />
       </Canvas>
