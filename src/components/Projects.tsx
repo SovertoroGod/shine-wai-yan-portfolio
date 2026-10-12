@@ -2,6 +2,8 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { HiOutlineRocketLaunch } from "react-icons/hi2";
+import FloatingIcon from "./FloatingIcon";
 
 const projects = [
   {
@@ -48,7 +50,10 @@ export default function Projects() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="projects" className="py-24 px-6" ref={ref}>
+    <section id="projects" className="py-24 px-6 relative" ref={ref}>
+      <FloatingIcon position="left" className="text-9xl md:text-[10rem]">
+        <HiOutlineRocketLaunch className="text-accent drop-shadow-[0_0_15px_rgba(0,230,118,0.6)]" />
+      </FloatingIcon>
       <div className="max-w-5xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

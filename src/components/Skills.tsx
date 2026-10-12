@@ -41,6 +41,7 @@ import {
   HiOutlineSparkles,
   HiOutlineLink,
 } from "react-icons/hi2";
+import FloatingIcon from "./FloatingIcon";
 
 interface SkillItem {
   name: string;
@@ -142,7 +143,10 @@ export default function Skills() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="skills" className="py-24 px-6" ref={ref}>
+    <section id="skills" className="py-24 px-6 relative" ref={ref}>
+      <FloatingIcon position="left" className="text-9xl md:text-[10rem]">
+        <HiOutlineCog6Tooth className="text-accent drop-shadow-[0_0_15px_rgba(0,230,118,0.6)]" />
+      </FloatingIcon>
       <div className="max-w-5xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

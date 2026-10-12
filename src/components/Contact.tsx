@@ -2,6 +2,8 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { HiOutlineEnvelope } from "react-icons/hi2";
+import FloatingIcon from "./FloatingIcon";
 
 const contactLinks = [
   {
@@ -52,7 +54,10 @@ export default function Contact() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="contact" className="py-24 px-6" ref={ref}>
+    <section id="contact" className="py-24 px-6 relative" ref={ref}>
+      <FloatingIcon position="right" className="text-9xl md:text-[10rem]">
+        <HiOutlineEnvelope className="text-accent drop-shadow-[0_0_15px_rgba(0,230,118,0.6)]" />
+      </FloatingIcon>
       <div className="max-w-3xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

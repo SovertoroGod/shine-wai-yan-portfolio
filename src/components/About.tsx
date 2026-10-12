@@ -3,13 +3,18 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import { SiReact } from "react-icons/si";
+import FloatingIcon from "./FloatingIcon";
 
 export default function About() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="about" className="py-24 px-6" ref={ref}>
+    <section id="about" className="py-24 px-6 relative" ref={ref}>
+      <FloatingIcon position="right" className="text-9xl md:text-[10rem]">
+        <SiReact className="text-accent drop-shadow-[0_0_15px_rgba(0,230,118,0.6)]" />
+      </FloatingIcon>
       <div className="max-w-4xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
