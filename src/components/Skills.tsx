@@ -46,6 +46,7 @@ import FloatingIcon from "./FloatingIcon";
 interface SkillItem {
   name: string;
   icon: IconType;
+  color?: string;
 }
 
 interface SkillCategory {
@@ -59,21 +60,21 @@ const skillCategories: SkillCategory[] = [
     title: "Frontend",
     icon: HiOutlineCube,
     skills: [
-      { name: "React", icon: SiReact },
+      { name: "React", icon: SiReact, color: "#61DAFB" },
       { name: "TanStack Query", icon: HiOutlineServerStack },
-      { name: "Redux", icon: SiRedux },
+      { name: "Redux", icon: SiRedux, color: "#764ABC" },
       { name: "Zustand", icon: HiOutlineBolt },
-      { name: "Next.js", icon: SiNextdotjs },
-      { name: "Tailwind CSS", icon: SiTailwindcss },
+      { name: "Next.js", icon: SiNextdotjs, color: "#ffffff" },
+      { name: "Tailwind CSS", icon: SiTailwindcss, color: "#38BDF8" },
     ],
   },
   {
     title: "Backend",
     icon: HiOutlineServerStack,
     skills: [
-      { name: "Node.js", icon: SiNodedotjs },
+      { name: "Node.js", icon: SiNodedotjs, color: "#339933" },
       { name: "Express.js", icon: SiExpress },
-      { name: "NestJS", icon: SiNestjs },
+      { name: "NestJS", icon: SiNestjs, color: "#E0234E" },
       { name: "Flask", icon: SiFlask },
       { name: "REST APIs", icon: HiOutlineLink },
     ],
@@ -82,9 +83,9 @@ const skillCategories: SkillCategory[] = [
     title: "Database",
     icon: HiOutlineCircleStack,
     skills: [
-      { name: "PostgreSQL", icon: SiPostgresql },
-      { name: "MySQL", icon: SiMysql },
-      { name: "MongoDB", icon: SiMongodb },
+      { name: "PostgreSQL", icon: SiPostgresql, color: "#336791" },
+      { name: "MySQL", icon: SiMysql, color: "#4479A1" },
+      { name: "MongoDB", icon: SiMongodb, color: "#47A248" },
       { name: "Chroma", icon: HiOutlineCircleStack },
     ],
   },
@@ -92,12 +93,12 @@ const skillCategories: SkillCategory[] = [
     title: "Machine Learning",
     icon: HiOutlineCpuChip,
     skills: [
-      { name: "Python", icon: SiPython },
-      { name: "Scikit-learn", icon: SiScikitlearn },
-      { name: "Pandas", icon: SiPandas },
-      { name: "NumPy", icon: SiNumpy },
-      { name: "TensorFlow", icon: SiTensorflow },
-      { name: "PyTorch", icon: SiPytorch },
+      { name: "Python", icon: SiPython, color: "#3776AB" },
+      { name: "Scikit-learn", icon: SiScikitlearn, color: "#F7931E" },
+      { name: "Pandas", icon: SiPandas, color: "#150458" },
+      { name: "NumPy", icon: SiNumpy, color: "#4DABCF" },
+      { name: "TensorFlow", icon: SiTensorflow, color: "#FF6F00" },
+      { name: "PyTorch", icon: SiPytorch, color: "#EE4C2C" },
     ],
   },
   {
@@ -108,7 +109,7 @@ const skillCategories: SkillCategory[] = [
       { name: "Tool Calling", icon: HiOutlineWrenchScrewdriver },
       { name: "MCP", icon: HiOutlineCog6Tooth },
       { name: "LLM", icon: HiOutlineSparkles },
-      { name: "LangChain", icon: SiLangchain },
+      { name: "LangChain", icon: SiLangchain, color: "#1C3C3C" },
       { name: "Agentic AI", icon: HiOutlineRocketLaunch },
     ],
   },
@@ -116,12 +117,12 @@ const skillCategories: SkillCategory[] = [
     title: "DevOps & Tools",
     icon: HiOutlineRocketLaunch,
     skills: [
-      { name: "Docker", icon: SiDocker },
-      { name: "Git", icon: SiGit },
-      { name: "GitHub", icon: SiGithub },
+      { name: "Docker", icon: SiDocker, color: "#2496ED" },
+      { name: "Git", icon: SiGit, color: "#F05032" },
+      { name: "GitHub", icon: SiGithub, color: "#ffffff" },
       { name: "CI/CD", icon: HiOutlineBolt },
       { name: "AWS", icon: HiOutlineCloud },
-      { name: "DigitalOcean", icon: SiDigitalocean },
+      { name: "DigitalOcean", icon: SiDigitalocean, color: "#0080FF" },
     ],
   },
 ];
@@ -179,7 +180,10 @@ export default function Skills() {
                     key={skill.name}
                     className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-accent/5 text-muted border border-card-border hover:border-accent/30 hover:text-foreground transition-colors"
                   >
-                    <skill.icon className="w-3.5 h-3.5 shrink-0" />
+                    <skill.icon
+                      className="w-3.5 h-3.5 shrink-0"
+                      style={skill.color ? { color: skill.color } : undefined}
+                    />
                     {skill.name}
                   </span>
                 ))}
